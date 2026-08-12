@@ -9,43 +9,162 @@
   <body>
     <div class="app-shell">
       <header class="top-bar">
-        <div>
-          <p class="eyebrow">Carrier GreenON</p>
-          <h1>친환경 냉방 리워드</h1>
-        </div>
+        <a class="brand-mark" href="#/home" aria-label="Carrier GreenON 홈">
+          <span class="brand-symbol" aria-hidden="true">G</span>
+          <span>
+            <strong>Carrier GreenON</strong>
+            <small>Smart Cooling Rewards</small>
+          </span>
+        </a>
         <button class="icon-button" type="button" aria-label="알림 확인">
           <span aria-hidden="true">!</span>
         </button>
       </header>
 
       <main class="main-content">
-        <section class="hero-panel" aria-labelledby="home-title">
-          <div>
-            <p class="section-label">오늘의 GREEN 상태</p>
-            <h2 id="home-title">시원함은 유지하고, 에너지는 더 가볍게</h2>
+        <section class="hero-panel" id="hero-panel" aria-labelledby="home-title">
+          <div class="hero-copy">
+            <p class="section-label">Carrier ESG Cooling Mission</p>
+            <h1 id="home-title">시원함은 유지하고, 에너지는 더 가볍게</h1>
             <p>
-              현재 날씨와 가상 에어컨 상태를 확인하고 GREEN MISSION을
-              준비하세요.
+              가상 Carrier 에어컨 상태와 날씨를 확인하고 친환경 냉방 미션으로
+              GREEN POINT를 모아보세요.
             </p>
+            <div class="hero-actions">
+              <button class="primary-button" type="button" data-go-screen="mission">
+                오늘 미션 시작
+              </button>
+              <button class="secondary-button" type="button" data-go-screen="shop">
+                리워드 보기
+              </button>
+            </div>
           </div>
-          <div class="hero-score" aria-label="현재 GREEN 점수">
-            <strong>82</strong>
-            <span>GREEN</span>
+
+          <div class="hero-visual" id="hero-visual">
+            <div
+              class="windy-mascot"
+              id="windy-mascot"
+              aria-label="Carrier GreenON 바람 마스코트 윈디"
+              role="img"
+            >
+              <div class="windy-sparkles" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <svg class="windy-svg" viewBox="0 0 220 190" aria-hidden="true">
+                <defs>
+                  <linearGradient id="windyBody" x1="22" x2="190" y1="20" y2="166">
+                    <stop offset="0" stop-color="#ffffff" />
+                    <stop offset="0.52" stop-color="#eaf6ff" />
+                    <stop offset="1" stop-color="#b8e0ff" />
+                  </linearGradient>
+                </defs>
+                <path
+                  class="windy-tail windy-tail-one"
+                  d="M42 112c-25 0-35-26-18-41 14-13 37-2 30 16"
+                  fill="none"
+                  stroke="#168cff"
+                  stroke-width="12"
+                  stroke-linecap="round"
+                />
+                <path
+                  class="windy-tail windy-tail-two"
+                  d="M176 114c26 0 36 25 18 40-14 12-37 1-30-16"
+                  fill="none"
+                  stroke="#9ed8ff"
+                  stroke-width="11"
+                  stroke-linecap="round"
+                />
+                <path
+                  class="windy-body"
+                  d="M67 151c-27-5-47-29-47-59 0-33 25-60 58-63 14-17 35-27 59-24 35 5 59 37 55 72 17 8 28 24 28 42 0 26-21 47-47 47H76c-3 0-6 0-9-1z"
+                  fill="url(#windyBody)"
+                />
+                <path
+                  d="M58 52c16-24 49-34 78-25"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  opacity="0.82"
+                />
+                <g class="windy-eyes">
+                  <g class="windy-eye">
+                    <circle cx="88" cy="93" r="17" fill="#ffffff" />
+                    <circle class="windy-pupil windy-pupil-left" cx="92" cy="96" r="7" fill="#172033" />
+                  </g>
+                  <g class="windy-eye">
+                    <circle cx="139" cy="93" r="17" fill="#ffffff" />
+                    <circle class="windy-pupil windy-pupil-right" cx="143" cy="96" r="7" fill="#172033" />
+                  </g>
+                </g>
+                <path
+                  class="windy-mouth"
+                  d="M103 125c8 8 20 8 28 0"
+                  fill="none"
+                  stroke="#172033"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                />
+                <path
+                  class="windy-cheek windy-cheek-left"
+                  d="M68 116h18"
+                  stroke="#8bd4ff"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                  opacity="0.9"
+                />
+                <path
+                  class="windy-cheek windy-cheek-right"
+                  d="M148 116h18"
+                  stroke="#8bd4ff"
+                  stroke-width="7"
+                  stroke-linecap="round"
+                  opacity="0.9"
+                />
+              </svg>
+              <div class="windy-badge">Windy</div>
+            </div>
+          </div>
+
+          <div class="hero-dashboard" aria-label="오늘의 핵심 상태">
+            <article class="hero-stat">
+              <span>GREEN POINT</span>
+              <strong id="hero-point">0P</strong>
+            </article>
+            <article class="hero-stat">
+              <span>현재 날씨</span>
+              <strong id="hero-weather">29°C · 61%</strong>
+            </article>
+            <article class="hero-stat">
+              <span>에어컨 상태</span>
+              <strong id="hero-aircon">정상</strong>
+            </article>
+            <article class="hero-stat hero-mission">
+              <span>오늘의 GREEN MISSION</span>
+              <strong id="hero-mission-title">26°C 유지 냉방 미션</strong>
+            </article>
           </div>
         </section>
 
         <section class="screen is-active" id="screen-home" aria-label="홈">
-          <div class="card-grid">
-            <article class="info-card">
+          <div class="dashboard-grid">
+            <article class="dashboard-card weather-card">
               <div class="card-header">
-                <span class="status-dot status-blue"></span>
-                <h3>현재 날씨</h3>
+                <span class="card-icon" aria-hidden="true">☀</span>
+                <div>
+                  <p class="section-label">현재 날씨</p>
+                  <h2>냉방 미션 추천 조건</h2>
+                </div>
               </div>
-              <div class="metric-row">
+              <div class="weather-main">
                 <strong id="weather-temp">29°C</strong>
                 <span id="weather-humidity">습도 61%</span>
               </div>
-              <p id="weather-message">샘플 날씨 데이터입니다. 실제 API 연결은 이후 단계에서 준비합니다.</p>
+              <p id="weather-message">
+                쾌적한 일반 냉방 미션을 진행하기 좋은 날씨입니다.
+              </p>
               <div class="weather-actions">
                 <button class="secondary-button" type="button" data-weather="SUNNY">
                   맑음
@@ -56,33 +175,64 @@
               </div>
             </article>
 
-            <article class="info-card">
+            <article class="dashboard-card aircon-summary-card">
               <div class="card-header">
-                <span class="status-dot status-blue"></span>
-                <h3>Carrier 에어컨</h3>
+                <span class="card-icon" aria-hidden="true">❄</span>
+                <div>
+                  <p class="section-label">Carrier Air Care</p>
+                  <h2>스마트 냉방 상태</h2>
+                </div>
               </div>
-              <div class="metric-row">
-                <strong>26°C</strong>
-                <span>냉방 · 자동풍</span>
+              <div class="temperature-display">
+                <span>설정 온도</span>
+                <strong id="home-aircon-temp">26°C</strong>
               </div>
-              <p>가상 IoT 데이터 카드 영역입니다. 실제 Carrier API는 사용하지 않습니다.</p>
+              <div class="aircon-chip-grid">
+                <div class="aircon-chip">
+                  <span aria-hidden="true">◎</span>
+                  <small>모드</small>
+                  <strong id="home-aircon-mode">냉방</strong>
+                </div>
+                <div class="aircon-chip">
+                  <span aria-hidden="true">〰</span>
+                  <small>풍량</small>
+                  <strong id="home-aircon-fan">자동풍</strong>
+                </div>
+                <div class="aircon-chip">
+                  <span aria-hidden="true">▤</span>
+                  <small>필터</small>
+                  <strong id="home-aircon-filter">깨끗함</strong>
+                </div>
+                <div class="aircon-chip">
+                  <span aria-hidden="true">◌</span>
+                  <small>센서</small>
+                  <strong id="home-aircon-sensor">정상</strong>
+                </div>
+              </div>
             </article>
           </div>
 
-          <article class="mission-preview">
+          <article class="mission-preview dashboard-card">
             <div>
               <p class="section-label">오늘의 GREEN MISSION</p>
-              <h3 id="home-mission-title">26°C 유지 냉방 미션</h3>
+              <h2 id="home-mission-title">26°C 유지 냉방 미션</h2>
               <p id="home-mission-description">
                 2시간 동안 26°C 이상, 정상 필터와 센서 상태를 유지하세요.
               </p>
+            </div>
+            <div class="mini-progress" aria-label="오늘 미션 진행률">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="48"></circle>
+                <circle id="home-progress-ring" cx="60" cy="60" r="48"></circle>
+              </svg>
+              <strong id="home-progress-text">0%</strong>
             </div>
             <button class="primary-button" type="button" data-go-screen="mission">
               미션 보기
             </button>
           </article>
 
-          <section class="aircon-panel" aria-labelledby="aircon-title">
+          <section class="aircon-panel dashboard-card" aria-labelledby="aircon-title">
             <div class="panel-heading">
               <div>
                 <p class="section-label">가상 IoT 상태</p>
@@ -153,7 +303,7 @@
         </section>
 
         <section class="screen" id="screen-mission" aria-label="미션">
-          <article class="mission-card" id="mission-card">
+          <article class="mission-card dashboard-card" id="mission-card">
             <div class="panel-heading">
               <div>
                 <p class="section-label">오늘의 GREEN MISSION</p>
@@ -167,30 +317,39 @@
               GREEN POINT를 받을 수 있습니다.
             </p>
 
-            <div class="mission-condition-list">
-              <div class="condition-item" id="condition-temp">
-                <span>설정온도</span>
-                <strong>26°C 이상</strong>
+            <div class="mission-progress-layout">
+              <div class="progress-orb" aria-label="미션 진행률">
+                <svg viewBox="0 0 140 140" aria-hidden="true">
+                  <circle cx="70" cy="70" r="56"></circle>
+                  <circle id="mission-progress-ring" cx="70" cy="70" r="56"></circle>
+                </svg>
+                <strong id="mission-progress-text">0%</strong>
               </div>
-              <div class="condition-item" id="condition-filter">
-                <span>필터</span>
-                <strong>정상</strong>
-              </div>
-              <div class="condition-item" id="condition-sensor">
-                <span>센서</span>
-                <strong>정상</strong>
+
+              <div class="mission-condition-list">
+                <div class="condition-item" id="condition-temp">
+                  <span>설정온도</span>
+                  <strong>26°C 이상</strong>
+                </div>
+                <div class="condition-item" id="condition-filter">
+                  <span>필터</span>
+                  <strong>정상</strong>
+                </div>
+                <div class="condition-item" id="condition-sensor">
+                  <span>센서</span>
+                  <strong>정상</strong>
+                </div>
               </div>
             </div>
 
             <div class="progress-area">
               <div class="progress-header">
-                <span>진행률</span>
-                <strong id="mission-progress-text">0%</strong>
+                <span>진행 시간</span>
+                <strong id="mission-time-text">미션을 시작하면 시간이 기록됩니다.</strong>
               </div>
-              <div class="progress-track" aria-label="미션 진행률">
+              <div class="progress-track" aria-label="미션 진행률 막대">
                 <div class="progress-fill" id="mission-progress-fill"></div>
               </div>
-              <p id="mission-time-text">미션을 시작하면 시간이 기록됩니다.</p>
             </div>
 
             <div class="mission-alert" id="mission-alert" role="status">
@@ -212,13 +371,13 @@
         </section>
 
         <section class="screen" id="screen-wallet" aria-label="지갑">
-          <article class="wallet-card">
+          <article class="wallet-card dashboard-card">
             <div class="panel-heading">
               <div>
                 <p class="section-label">GREEN WALLET</p>
                 <h2>포인트 지갑</h2>
               </div>
-              <span class="status-pill">임시 저장</span>
+              <span class="status-pill">Supabase 저장</span>
             </div>
 
             <div class="wallet-balance">
@@ -245,11 +404,11 @@
         </section>
 
         <section class="screen" id="screen-shop" aria-label="리워드 숍">
-          <article class="shop-card">
+          <article class="shop-card dashboard-card">
             <div class="panel-heading">
               <div>
                 <p class="section-label">GREEN REWARD SHOP</p>
-                <h2>리워드 숍</h2>
+                <h2>상품 목록</h2>
               </div>
               <span class="status-pill" id="shop-point-pill">0P</span>
             </div>
@@ -285,8 +444,17 @@
           </article>
         </section>
 
+        <section class="screen" id="screen-product-detail" aria-label="상품 상세">
+          <article class="product-detail-card dashboard-card" id="product-detail-card">
+            <button class="text-button" type="button" id="back-to-shop-button">
+              ← 목록으로 돌아가기
+            </button>
+            <div class="product-detail-layout" id="product-detail-content"></div>
+          </article>
+        </section>
+
         <section class="screen" id="screen-report" aria-label="리포트">
-          <article class="user-card">
+          <article class="user-card dashboard-card">
             <div class="panel-heading">
               <div>
                 <p class="section-label">MY PAGE</p>
@@ -336,7 +504,7 @@
             </div>
           </article>
 
-          <article class="report-card">
+          <article class="report-card dashboard-card">
             <div class="panel-heading">
               <div>
                 <p class="section-label">GREEN REPORT</p>

@@ -1,5 +1,5 @@
-// Carrier GreenON 1단계 기본 화면 전환 스크립트입니다.
-// 아직 실제 미션, 포인트, Supabase 데이터는 연결하지 않고 화면 구조만 제어합니다.
+// Carrier GreenON 웹앱 스크립트입니다.
+// 실제 Carrier 에어컨 API는 연결하지 않고, 가상 IoT 데이터와 Supabase 저장 구조를 함께 사용합니다.
 
 const navButtons = document.querySelectorAll(".nav-button");
 const screens = document.querySelectorAll(".screen");
@@ -12,8 +12,81 @@ const greenonSupabase =
       )
     : null;
 
-// 실제 Carrier 에어컨 API는 연결하지 않습니다.
-// 아래 객체는 PHASE 2에서 화면을 테스트하기 위한 가상 IoT 데이터입니다.
+const PRODUCT_ROUTE_PREFIX = "#/shop/";
+const DEFAULT_PRODUCTS = [
+  {
+    id: "food-starbucks-americano",
+    code: "FOOD_STARBUCKS_AMERICANO",
+    category: "FOOD",
+    name: "스타벅스 아메리카노",
+    description: "친환경 냉방 미션 후 시원하게 사용할 수 있는 커피 리워드입니다.",
+    detail:
+      "GREEN POINT로 교환 가능한 모바일 커피 쿠폰입니다. 에너지 절약 습관을 이어가며 일상 속 작은 보상을 받을 수 있습니다.",
+    price: 4500,
+    icon: "☕",
+  },
+  {
+    id: "food-convenience-voucher",
+    code: "FOOD_CONVENIENCE_VOUCHER",
+    category: "FOOD",
+    name: "편의점 모바일 상품권",
+    description: "가까운 편의점에서 사용할 수 있는 생활형 모바일 상품권입니다.",
+    detail:
+      "간식, 음료, 생필품 구매에 사용할 수 있는 실용적인 리워드입니다. 미션을 꾸준히 완료한 사용자에게 적합합니다.",
+    price: 5000,
+    icon: "▣",
+  },
+  {
+    id: "life-eco-tumbler",
+    code: "LIFE_ECO_TUMBLER",
+    category: "LIFE",
+    name: "친환경 텀블러",
+    description: "일회용 컵 사용을 줄이는 데 도움이 되는 텀블러 리워드입니다.",
+    detail:
+      "반복 사용 가능한 텀블러로 GREEN ON 생활 습관을 이어갈 수 있습니다. 캠퍼스와 사무실 모두에 어울리는 깔끔한 디자인을 가정했습니다.",
+    price: 8000,
+    icon: "♻",
+  },
+  {
+    id: "life-eco-bag",
+    code: "LIFE_ECO_BAG",
+    category: "LIFE",
+    name: "에코백",
+    description: "가볍게 들고 다니는 친환경 장바구니 리워드입니다.",
+    detail:
+      "일상 이동과 장보기에서 비닐 사용을 줄일 수 있는 리워드입니다. Carrier GreenON 브랜드 무드를 담은 샘플 상품입니다.",
+    price: 6000,
+    icon: "□",
+  },
+  {
+    id: "carrier-aircon-filter",
+    code: "CARRIER_AIRCON_FILTER",
+    category: "CARRIER",
+    name: "Carrier 에어컨 필터",
+    description: "쾌적한 냉방과 에너지 효율 관리를 위한 필터 리워드입니다.",
+    detail:
+      "필터 관리는 냉방 효율과 실내 공기질을 함께 관리하는 핵심 습관입니다. 실제 Carrier API나 실제 부품 구매 연동은 하지 않는 샘플 상품입니다.",
+    price: 12000,
+    icon: "▤",
+  },
+  {
+    id: "carrier-green-goods",
+    code: "CARRIER_GREEN_GOODS",
+    category: "CARRIER",
+    name: "Carrier 친환경 굿즈",
+    description: "청량한 바람 콘셉트의 Carrier GreenON 굿즈 패키지입니다.",
+    detail:
+      "윈디 마스코트와 파란색 브랜드 무드를 담은 가상의 굿즈입니다. 친환경 냉방 미션 참여 경험을 확장하기 위한 리워드입니다.",
+    price: 10000,
+    icon: "G",
+  },
+];
+
+const PRODUCT_COPY_BY_CODE = DEFAULT_PRODUCTS.reduce((copyMap, product) => {
+  copyMap[product.code] = product;
+  return copyMap;
+}, {});
+
 const airconState = {
   power: true,
   mode: "냉방",
@@ -56,30 +129,9 @@ const userState = {
 
 const shopState = {
   selectedCategory: "ALL",
+  selectedProductId: "",
   orders: [],
-  rewards: [
-    {
-      id: "food-coffee",
-      category: "FOOD",
-      name: "아이스 아메리카노 쿠폰",
-      description: "친환경 냉방 미션 후 시원하게 사용할 수 있는 모바일 쿠폰",
-      price: 500,
-    },
-    {
-      id: "life-tumbler",
-      category: "LIFE",
-      name: "GreenON 텀블러 할인권",
-      description: "일회용 컵 사용을 줄이는 생활 리워드",
-      price: 900,
-    },
-    {
-      id: "carrier-filter",
-      category: "CARRIER",
-      name: "캐리어 필터 교체 할인권",
-      description: "깨끗한 냉방 상태를 유지하기 위한 필터 관리 리워드",
-      price: 1200,
-    },
-  ],
+  rewards: [...DEFAULT_PRODUCTS],
 };
 
 const dbState = {
@@ -88,34 +140,8 @@ const dbState = {
   missions: [],
 };
 
-// 하단 내비게이션 버튼을 누르면 해당 화면만 보이도록 active 클래스를 바꿉니다.
-navButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const targetScreenName = button.dataset.screen;
-    showScreen(targetScreenName);
-  });
-});
-
-document.querySelectorAll("[data-go-screen]").forEach((button) => {
-  button.addEventListener("click", () => {
-    showScreen(button.dataset.goScreen);
-  });
-});
-
-function showScreen(targetScreenName) {
-  // 모든 버튼에서 선택 상태를 제거한 뒤, 이동할 화면의 버튼만 선택 상태로 표시합니다.
-  navButtons.forEach((navButton) => {
-    navButton.classList.toggle("is-active", navButton.dataset.screen === targetScreenName);
-  });
-
-  // 모든 화면을 숨기고, data-screen 값과 맞는 화면만 보여줍니다.
-  screens.forEach((screen) => {
-    const isTargetScreen = screen.id === `screen-${targetScreenName}`;
-    screen.classList.toggle("is-active", isTargetScreen);
-  });
-}
-
-// 분 단위 사용시간을 사용자가 읽기 쉬운 "n시간 n분" 형태로 바꿉니다.
+// 화면별 구성 요소를 함수 단위로 나눠 관리합니다. React 컴포넌트는 아니지만,
+// WindyMascot, StatusCard, ProductCard, ProductDetail 역할을 하는 렌더 함수를 분리했습니다.
 function formatRuntime(minutes) {
   const hours = Math.floor(minutes / 60);
   const restMinutes = minutes % 60;
@@ -127,9 +153,131 @@ function formatRuntime(minutes) {
   return `${hours}시간 ${restMinutes}분`;
 }
 
+function formatPoint(point) {
+  return `${Number(point).toLocaleString("ko-KR")}P`;
+}
+
+function getCurrentProgress() {
+  return Math.min(
+    100,
+    Math.round((missionState.elapsedMinutes / missionState.targetMinutes) * 100),
+  );
+}
+
+function getRewardById(rewardId) {
+  return shopState.rewards.find((reward) => String(reward.id) === String(rewardId));
+}
+
+function getProductImageLabel(reward) {
+  return reward.icon || PRODUCT_COPY_BY_CODE[reward.code]?.icon || reward.name.slice(0, 1);
+}
+
+function getProductDetailText(reward) {
+  return (
+    reward.detail ||
+    PRODUCT_COPY_BY_CODE[reward.code]?.detail ||
+    `${reward.name}을 GREEN POINT로 교환할 수 있는 Carrier GreenON 리워드입니다.`
+  );
+}
+
+function isUuid(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
+function setHashForScreen(screenName) {
+  if (screenName === "product-detail") {
+    return;
+  }
+
+  const nextHash = screenName === "home" ? "#/home" : `#/${screenName}`;
+  if (window.location.hash !== nextHash) {
+    window.history.pushState(null, "", nextHash);
+  }
+}
+
+function showScreen(targetScreenName, options = {}) {
+  const isDetail = targetScreenName === "product-detail";
+
+  navButtons.forEach((navButton) => {
+    navButton.classList.toggle(
+      "is-active",
+      !isDetail && navButton.dataset.screen === targetScreenName,
+    );
+  });
+
+  screens.forEach((screen) => {
+    const isTargetScreen = screen.id === `screen-${targetScreenName}`;
+    screen.classList.toggle("is-active", isTargetScreen);
+  });
+
+  if (!options.skipHash) {
+    setHashForScreen(targetScreenName);
+  }
+
+  if (targetScreenName === "shop") {
+    renderShop();
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openProductDetail(productId, options = {}) {
+  const reward = getRewardById(productId);
+
+  if (!reward) {
+    showScreen("shop", options);
+    return;
+  }
+
+  shopState.selectedProductId = String(productId);
+  renderProductDetail();
+  showScreen("product-detail", { skipHash: true });
+
+  if (!options.skipHash) {
+    window.history.pushState(null, "", `${PRODUCT_ROUTE_PREFIX}${encodeURIComponent(productId)}`);
+  }
+}
+
+function handleRoute() {
+  const hash = window.location.hash || "#/home";
+  const productPrefix = "#/shop/";
+
+  if (hash.startsWith(productPrefix)) {
+    const productId = decodeURIComponent(hash.slice(productPrefix.length));
+    openProductDetail(productId, { skipHash: true });
+    return;
+  }
+
+  if (hash === "#/shop") {
+    showScreen("shop", { skipHash: true });
+    return;
+  }
+
+  const screenName = hash.replace("#/", "") || "home";
+  const allowedScreens = ["home", "mission", "wallet", "report"];
+  showScreen(allowedScreens.includes(screenName) ? screenName : "home", {
+    skipHash: true,
+  });
+}
+
+navButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    showScreen(button.dataset.screen);
+  });
+});
+
+document.querySelectorAll("[data-go-screen]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showScreen(button.dataset.goScreen);
+  });
+});
+
+window.addEventListener("hashchange", handleRoute);
+
 function fetchWeatherData(condition = weatherState.condition) {
-  // 실제 날씨 API는 아직 호출하지 않습니다.
-  // 이후 API 키가 준비되면 이 함수 내부만 fetch 호출로 교체하면 됩니다.
+  // 실제 날씨 API는 호출하지 않습니다. API 키가 준비되면 이 함수 내부만 교체하면 됩니다.
   if (condition === "HUMID") {
     return {
       temperature: 30,
@@ -150,6 +298,8 @@ function fetchWeatherData(condition = weatherState.condition) {
 function renderWeather() {
   document.querySelector("#weather-temp").textContent = `${weatherState.temperature}°C`;
   document.querySelector("#weather-humidity").textContent = `습도 ${weatherState.humidity}%`;
+  document.querySelector("#hero-weather").textContent =
+    `${weatherState.temperature}°C · ${weatherState.humidity}%`;
   document.querySelector("#weather-message").textContent =
     weatherState.condition === "HUMID"
       ? "습도가 높아 자동풍 미션이 추천되는 날씨입니다."
@@ -176,12 +326,12 @@ function applyWeatherMission() {
   document.querySelector("#home-mission-title").textContent = selectedMission.title;
   document.querySelector("#home-mission-description").textContent =
     selectedMission.description;
+  document.querySelector("#hero-mission-title").textContent = selectedMission.title;
   document.querySelector("#mission-title").textContent = selectedMission.title;
   document.querySelector("#mission-description").textContent = selectedMission.description;
   renderMissionStatus();
 }
 
-// 현재 가상 에어컨 상태가 정상인지 확인합니다.
 function isAirconDanger() {
   return airconState.health !== "normal";
 }
@@ -199,7 +349,6 @@ function hasMissionViolation() {
   return !conditions.temp || !conditions.filter || !conditions.sensor;
 }
 
-// 가상 에어컨 상태 객체를 화면 카드와 텍스트에 반영합니다.
 function renderAirconStatus() {
   const statusCard = document.querySelector("#aircon-status-card");
   const healthPill = document.querySelector("#aircon-health-pill");
@@ -215,6 +364,12 @@ function renderAirconStatus() {
   document.querySelector("#aircon-filter").textContent = airconState.filter;
   document.querySelector("#aircon-sensor").textContent = airconState.sensor;
 
+  document.querySelector("#home-aircon-temp").textContent = `${airconState.temperature}°C`;
+  document.querySelector("#home-aircon-mode").textContent = airconState.mode;
+  document.querySelector("#home-aircon-fan").textContent = airconState.fan;
+  document.querySelector("#home-aircon-filter").textContent = airconState.filter;
+  document.querySelector("#home-aircon-sensor").textContent = airconState.sensor;
+
   powerText.textContent = airconState.power ? "POWER ON" : "POWER OFF";
 
   const danger = isAirconDanger();
@@ -223,18 +378,24 @@ function renderAirconStatus() {
 
   if (airconState.health === "filter") {
     healthPill.textContent = "필터 점검";
+    document.querySelector("#hero-aircon").textContent = "필터 점검";
     messageText.textContent = "필터 점검이 필요합니다. 미션 조건 위반 가능성이 있습니다.";
+    renderWindyMascot();
     return;
   }
 
   if (airconState.health === "sensor") {
     healthPill.textContent = "센서 오류";
+    document.querySelector("#hero-aircon").textContent = "센서 오류";
     messageText.textContent = "센서 값이 비정상입니다. 상태 확인이 필요합니다.";
+    renderWindyMascot();
     return;
   }
 
   healthPill.textContent = "정상";
+  document.querySelector("#hero-aircon").textContent = "정상";
   messageText.textContent = "쾌적한 친환경 냉방 상태입니다.";
+  renderWindyMascot();
 }
 
 document.querySelectorAll("[data-weather]").forEach((button) => {
@@ -275,7 +436,6 @@ function saveAirconStatusToSupabase() {
     });
 }
 
-// 시뮬레이션 버튼으로 정상/비정상 상태를 바꾸고 사용시간도 증가시킵니다.
 document.querySelectorAll("[data-aircon-action]").forEach((button) => {
   button.addEventListener("click", () => {
     const action = button.dataset.airconAction;
@@ -317,13 +477,20 @@ document.querySelectorAll("[data-aircon-action]").forEach((button) => {
   });
 });
 
-renderAirconStatus();
-renderWeather();
-
 function setConditionState(elementId, isOk) {
   const element = document.querySelector(elementId);
   element.classList.toggle("is-ok", isOk);
   element.classList.toggle("is-danger", !isOk);
+}
+
+function setProgressRing(selector, progress, circumference) {
+  const ring = document.querySelector(selector);
+  if (!ring) {
+    return;
+  }
+
+  const offset = circumference - (progress / 100) * circumference;
+  ring.style.strokeDashoffset = String(offset);
 }
 
 function renderMissionStatus() {
@@ -331,14 +498,12 @@ function renderMissionStatus() {
   const statePill = document.querySelector("#mission-state-pill");
   const alert = document.querySelector("#mission-alert");
   const progressText = document.querySelector("#mission-progress-text");
+  const homeProgressText = document.querySelector("#home-progress-text");
   const progressFill = document.querySelector("#mission-progress-fill");
   const timeText = document.querySelector("#mission-time-text");
   const startButton = document.querySelector("#start-mission-button");
 
-  const progress = Math.min(
-    100,
-    Math.round((missionState.elapsedMinutes / missionState.targetMinutes) * 100),
-  );
+  const progress = getCurrentProgress();
   const conditions = getMissionConditions();
   const violation = hasMissionViolation();
 
@@ -347,7 +512,10 @@ function renderMissionStatus() {
   setConditionState("#condition-sensor", conditions.sensor);
 
   progressText.textContent = `${progress}%`;
+  homeProgressText.textContent = `${progress}%`;
   progressFill.style.width = `${progress}%`;
+  setProgressRing("#mission-progress-ring", progress, 352);
+  setProgressRing("#home-progress-ring", progress, 302);
   timeText.textContent = `${formatRuntime(missionState.elapsedMinutes)} / ${formatRuntime(
     missionState.targetMinutes,
   )}`;
@@ -367,29 +535,36 @@ function renderMissionStatus() {
   if (missionState.status === "ready") {
     statePill.textContent = "대기";
     alert.textContent = "미션 시작 전입니다. 조건을 확인하고 미션을 시작하세요.";
+    renderWindyMascot();
     return;
   }
 
   if (missionState.status === "running" && violation) {
     statePill.textContent = "주의";
     alert.textContent = "미션 조건 위반 상태입니다. 온도, 필터, 센서를 정상으로 돌려주세요.";
+    renderWindyMascot();
     return;
   }
 
   if (missionState.status === "running") {
     statePill.textContent = "진행 중";
     alert.textContent = "조건이 정상입니다. +30분 시뮬레이션으로 미션 시간을 채워보세요.";
+    renderWindyMascot();
     return;
   }
 
   if (missionState.status === "success") {
     statePill.textContent = "성공";
-    alert.textContent = `미션 성공! GREEN POINT ${missionState.rewardPoint}P 지급 준비가 완료되었습니다.`;
+    alert.textContent = `미션 성공! GREEN POINT ${formatPoint(
+      missionState.rewardPoint,
+    )} 지급 준비가 완료되었습니다.`;
+    renderWindyMascot();
     return;
   }
 
   statePill.textContent = "실패";
   alert.textContent = "미션 실패입니다. 조건을 정상으로 만든 뒤 다시 시작하세요.";
+  renderWindyMascot();
 }
 
 function evaluateMission() {
@@ -409,8 +584,7 @@ function evaluateMission() {
 }
 
 function addPointTransaction(type, title, point) {
-  // PHASE 4에서는 브라우저 메모리에만 기록합니다.
-  // Supabase 전환 단계에서 이 배열을 point_transactions 테이블로 옮깁니다.
+  // Supabase 저장 전에도 화면 반응을 즉시 보여주기 위해 브라우저 상태 배열에 먼저 기록합니다.
   walletState.transactions.unshift({
     id: `tx-${Date.now()}-${walletState.transactions.length}`,
     type,
@@ -421,7 +595,6 @@ function addPointTransaction(type, title, point) {
 }
 
 function grantMissionReward() {
-  // 성공 상태 렌더링이 여러 번 실행되어도 포인트가 중복 지급되지 않게 막습니다.
   if (missionState.rewardGranted) {
     return;
   }
@@ -431,7 +604,9 @@ function grantMissionReward() {
   walletState.point += missionState.rewardPoint;
   addPointTransaction("earn", "26°C 유지 냉방 미션 성공", missionState.rewardPoint);
   renderWallet();
+  renderShop();
   renderUserAndReport();
+  triggerWindyPointAnimation();
   saveMissionRewardToSupabase();
 }
 
@@ -468,8 +643,6 @@ document.querySelector("#reset-mission-button").addEventListener("click", () => 
   renderMissionStatus();
 });
 
-renderMissionStatus();
-
 function renderHistoryList(listElement, transactions, emptyText) {
   listElement.innerHTML = "";
 
@@ -492,7 +665,7 @@ function renderHistoryList(listElement, transactions, emptyText) {
         <span>${transaction.createdAt}</span>
       </div>
       <span class="history-point ${transaction.type === "spend" ? "is-spend" : ""}">
-        ${pointPrefix}${transaction.point}P
+        ${pointPrefix}${formatPoint(transaction.point)}
       </span>
     `;
     listElement.append(item);
@@ -507,7 +680,8 @@ function renderWallet() {
     (transaction) => transaction.type === "spend",
   );
 
-  document.querySelector("#wallet-point").textContent = `${walletState.point}P`;
+  document.querySelector("#wallet-point").textContent = formatPoint(walletState.point);
+  document.querySelector("#hero-point").textContent = formatPoint(walletState.point);
   document.querySelector("#earn-count").textContent = `${earnTransactions.length}건`;
   document.querySelector("#spend-count").textContent = `${spendTransactions.length}건`;
 
@@ -522,8 +696,6 @@ function renderWallet() {
     "아직 사용한 포인트가 없습니다.",
   );
 }
-
-renderWallet();
 
 async function loadPublicSupabaseData() {
   if (!greenonSupabase || dbState.loadedPublicData) {
@@ -562,14 +734,24 @@ async function loadPublicSupabaseData() {
     missionState.rewardPoint = todayMission.reward_points;
   }
 
+  // Supabase에 등록된 상품은 유지하되, 과제 요구 샘플 6개보다 적으면 기본 상품을 보강합니다.
   if (rewards?.length) {
-    shopState.rewards = rewards.map((reward) => ({
-      id: reward.id,
-      category: reward.category,
-      name: reward.name,
-      description: reward.description,
-      price: reward.price,
-    }));
+    const mappedRewards = rewards.map((reward) => {
+      const fallback = PRODUCT_COPY_BY_CODE[reward.code] || {};
+      return {
+        ...fallback,
+        id: reward.id,
+        code: reward.code,
+        category: reward.category,
+        name: reward.name,
+        description: reward.description,
+        price: reward.price,
+        icon: fallback.icon || reward.name.slice(0, 1),
+      };
+    });
+    const usedCodes = new Set(mappedRewards.map((reward) => reward.code));
+    const fallbackRewards = DEFAULT_PRODUCTS.filter((product) => !usedCodes.has(product.code));
+    shopState.rewards = [...mappedRewards, ...fallbackRewards].slice(0, 12);
   }
 
   dbState.loadedPublicData = true;
@@ -577,6 +759,9 @@ async function loadPublicSupabaseData() {
   renderWeather();
   renderMissionStatus();
   renderShop();
+  if (shopState.selectedProductId) {
+    renderProductDetail();
+  }
 }
 
 async function loadUserSupabaseData() {
@@ -666,6 +851,7 @@ async function loadUserSupabaseData() {
   renderMissionStatus();
   renderWallet();
   renderShop();
+  renderProductDetail();
   renderUserAndReport();
 }
 
@@ -759,6 +945,26 @@ function saveMissionRewardToSupabase() {
   });
 }
 
+function renderProductCard(reward) {
+  const rewardCard = document.createElement("article");
+  rewardCard.className = "product-card";
+  rewardCard.innerHTML = `
+    <div class="product-thumb" aria-hidden="true">${getProductImageLabel(reward)}</div>
+    <div class="product-meta">
+      <span class="reward-category">${reward.category}</span>
+      <span class="reward-price">${formatPoint(reward.price)}</span>
+    </div>
+    <h3>${reward.name}</h3>
+    <p>${reward.description}</p>
+    <div class="product-actions">
+      <button class="secondary-button" type="button" data-view-reward="${reward.id}">
+        상세보기
+      </button>
+    </div>
+  `;
+  return rewardCard;
+}
+
 function renderShop() {
   const rewardList = document.querySelector("#reward-list");
   const orderHistory = document.querySelector("#order-history");
@@ -767,31 +973,16 @@ function renderShop() {
     return selectedCategory === "ALL" || reward.category === selectedCategory;
   });
 
-  document.querySelector("#shop-point-pill").textContent = `${walletState.point}P`;
+  document.querySelector("#shop-point-pill").textContent = formatPoint(walletState.point);
   rewardList.innerHTML = "";
 
   filteredRewards.forEach((reward) => {
-    const rewardCard = document.createElement("article");
-    rewardCard.className = "reward-card";
-    rewardCard.innerHTML = `
-      <div class="reward-card-header">
-        <div>
-          <span class="reward-category">${reward.category}</span>
-          <h3>${reward.name}</h3>
-        </div>
-        <span class="reward-price">${reward.price}P</span>
-      </div>
-      <p>${reward.description}</p>
-      <button class="primary-button" type="button" data-buy-reward="${reward.id}">
-        구매하기
-      </button>
-    `;
-    rewardList.append(rewardCard);
+    rewardList.append(renderProductCard(reward));
   });
 
   document.querySelector("#order-count").textContent = `${shopState.orders.length}건`;
   renderOrderHistory(orderHistory);
-  bindRewardBuyButtons();
+  bindProductButtons();
 }
 
 function renderOrderHistory(orderHistory) {
@@ -813,19 +1004,79 @@ function renderOrderHistory(orderHistory) {
         <strong>${order.rewardName}</strong>
         <span>${order.createdAt}</span>
       </div>
-      <span class="history-point is-spend">-${order.price}P</span>
+      <span class="history-point is-spend">-${formatPoint(order.price)}</span>
     `;
     orderHistory.append(item);
   });
 }
 
-function bindRewardBuyButtons() {
-  document.querySelectorAll("[data-buy-reward]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      await buyReward(button.dataset.buyReward);
+function bindProductButtons() {
+  document.querySelectorAll("[data-view-reward]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openProductDetail(button.dataset.viewReward);
     });
   });
 }
+
+function renderProductDetail() {
+  const detailContent = document.querySelector("#product-detail-content");
+  if (!detailContent || !shopState.selectedProductId) {
+    return;
+  }
+
+  const reward = getRewardById(shopState.selectedProductId);
+  if (!reward) {
+    detailContent.innerHTML = `
+      <div class="detail-alert is-danger">상품을 찾을 수 없습니다.</div>
+    `;
+    return;
+  }
+
+  const hasEnoughPoint = walletState.point >= reward.price;
+  detailContent.innerHTML = `
+    <div class="product-detail-media" aria-hidden="true">${getProductImageLabel(reward)}</div>
+    <div class="product-detail-info">
+      <span class="reward-category">${reward.category}</span>
+      <h2>${reward.name}</h2>
+      <p>${getProductDetailText(reward)}</p>
+      <div class="detail-price-box">
+        <span>필요 GREEN POINT</span>
+        <strong>${formatPoint(reward.price)}</strong>
+      </div>
+      <div class="detail-price-box">
+        <span>현재 보유 GREEN POINT</span>
+        <strong>${formatPoint(walletState.point)}</strong>
+      </div>
+      <div class="detail-alert ${hasEnoughPoint ? "" : "is-danger"}" role="status">
+        ${
+          hasEnoughPoint
+            ? "포인트가 충분합니다. GREEN POINT로 구매할 수 있습니다."
+            : "포인트가 부족합니다"
+        }
+      </div>
+      <button
+        class="primary-button"
+        type="button"
+        id="detail-buy-button"
+        ${hasEnoughPoint ? "" : "disabled"}
+      >
+        GREEN POINT로 구매
+      </button>
+    </div>
+  `;
+
+  const detailBuyButton = document.querySelector("#detail-buy-button");
+  if (detailBuyButton) {
+    detailBuyButton.addEventListener("click", async () => {
+      await buyReward(reward.id);
+      renderProductDetail();
+    });
+  }
+}
+
+document.querySelector("#back-to-shop-button").addEventListener("click", () => {
+  showScreen("shop");
+});
 
 function setShopAlert(message, isDanger = false) {
   const alert = document.querySelector("#shop-alert");
@@ -834,7 +1085,7 @@ function setShopAlert(message, isDanger = false) {
 }
 
 async function buyReward(rewardId) {
-  const reward = shopState.rewards.find((item) => item.id === rewardId);
+  const reward = getRewardById(rewardId);
 
   if (!reward) {
     return;
@@ -857,7 +1108,7 @@ async function buyReward(rewardId) {
   shopState.orders.unshift(localOrder);
   addPointTransaction("spend", reward.name, reward.price);
 
-  if (greenonSupabase && userState.isLoggedIn && userState.userId) {
+  if (greenonSupabase && userState.isLoggedIn && userState.userId && isUuid(reward.id)) {
     const [{ error: orderError }, { error: transactionError }, { error: profileError }] =
       await Promise.all([
         greenonSupabase.from("reward_orders").insert({
@@ -893,6 +1144,7 @@ async function buyReward(rewardId) {
   setShopAlert(`${reward.name} 구매가 완료되었습니다.`);
   renderWallet();
   renderShop();
+  renderProductDetail();
   renderUserAndReport();
 }
 
@@ -907,8 +1159,6 @@ document.querySelectorAll("[data-reward-category]").forEach((button) => {
     renderShop();
   });
 });
-
-renderShop();
 
 function getGreenLevel() {
   const point = walletState.point;
@@ -964,7 +1214,7 @@ function renderUserAndReport() {
   document.querySelector("#green-level-pill").textContent = `LEVEL ${greenLevel.level}`;
   document.querySelector("#green-level-name").textContent = greenLevel.name;
   document.querySelector("#green-level-message").textContent = greenLevel.message;
-  document.querySelector("#report-point").textContent = `${walletState.point}P`;
+  document.querySelector("#report-point").textContent = formatPoint(walletState.point);
   document.querySelector("#report-mission-count").textContent =
     `${userState.completedMissions}회`;
   document.querySelector("#report-order-count").textContent = `${shopState.orders.length}건`;
@@ -1088,7 +1338,124 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
   setAuthMessage("로그아웃되었습니다.");
 });
 
-renderUserAndReport();
+function renderWindyMascot() {
+  const mascot = document.querySelector("#windy-mascot");
+  if (!mascot) {
+    return;
+  }
+
+  const mouth = mascot.querySelector(".windy-mouth");
+  const pupils = mascot.querySelectorAll(".windy-pupil");
+  if (mouth) {
+    mouth.setAttribute("d", "M103 125c8 8 20 8 28 0");
+  }
+  pupils.forEach((pupil) => {
+    pupil.setAttribute("r", "7");
+  });
+  mascot.classList.remove("is-running", "is-success", "is-filter", "is-sensor");
+
+  if (airconState.health === "filter") {
+    mascot.classList.add("is-filter");
+    if (mouth) {
+      mouth.setAttribute("d", "M101 130c8-7 23-7 31 0");
+    }
+    return;
+  }
+
+  if (airconState.health === "sensor") {
+    mascot.classList.add("is-sensor");
+    if (mouth) {
+      mouth.setAttribute("d", "M110 124c6 10 14 10 20 0");
+    }
+    pupils.forEach((pupil) => {
+      pupil.setAttribute("r", "5");
+    });
+    return;
+  }
+
+  if (missionState.status === "running") {
+    mascot.classList.add("is-running");
+    return;
+  }
+
+  if (missionState.status === "success") {
+    mascot.classList.add("is-success");
+  }
+}
+
+function triggerWindyPointAnimation() {
+  const mascot = document.querySelector("#windy-mascot");
+  if (!mascot) {
+    return;
+  }
+
+  mascot.classList.remove("is-point");
+  requestAnimationFrame(() => {
+    mascot.classList.add("is-point");
+    window.setTimeout(() => mascot.classList.remove("is-point"), 760);
+  });
+}
+
+function initializePointerInteractions() {
+  const mascot = document.querySelector("#windy-mascot");
+  const hero = document.querySelector("#hero-panel");
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!mascot || !hero || !canHover || reducedMotion) {
+    return;
+  }
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let frameId = 0;
+
+  function updateInteraction() {
+    frameId = 0;
+    const heroRect = hero.getBoundingClientRect();
+    const mascotRect = mascot.getBoundingClientRect();
+    const heroCenterX = heroRect.left + heroRect.width / 2;
+    const heroCenterY = heroRect.top + heroRect.height / 2;
+    const mascotCenterX = mascotRect.left + mascotRect.width / 2;
+    const mascotCenterY = mascotRect.top + mascotRect.height / 2;
+    const dx = mouseX - mascotCenterX;
+    const dy = mouseY - mascotCenterY;
+    const distance = Math.hypot(dx, dy);
+    const eyeX = Math.max(-5, Math.min(5, dx / 28));
+    const eyeY = Math.max(-4, Math.min(4, dy / 32));
+    const rotate = Math.max(-2, Math.min(2, dx / 180));
+    const scale = distance < 190 ? 1.03 : 1;
+    const parallaxX = Math.max(-14, Math.min(14, (mouseX - heroCenterX) / 28));
+    const parallaxY = Math.max(-10, Math.min(10, (mouseY - heroCenterY) / 34));
+
+    mascot.style.setProperty("--eye-x", `${eyeX}px`);
+    mascot.style.setProperty("--eye-y", `${eyeY}px`);
+    mascot.style.setProperty("--windy-rotate", `${rotate}deg`);
+    mascot.style.setProperty("--windy-scale", String(scale));
+    hero.style.setProperty("--parallax-x", `${parallaxX}px`);
+    hero.style.setProperty("--parallax-y", `${parallaxY}px`);
+  }
+
+  // Interaction concept adapted from MDN Web Docs requestAnimationFrame examples.
+  // Modified for Carrier GreenON Windy mascot eye tracking and light hero parallax.
+  hero.addEventListener("mousemove", (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+
+    if (!frameId) {
+      frameId = requestAnimationFrame(updateInteraction);
+    }
+  });
+
+  hero.addEventListener("mouseleave", () => {
+    mascot.style.setProperty("--eye-x", "0px");
+    mascot.style.setProperty("--eye-y", "0px");
+    mascot.style.setProperty("--windy-rotate", "0deg");
+    mascot.style.setProperty("--windy-scale", "1");
+    hero.style.setProperty("--parallax-x", "0px");
+    hero.style.setProperty("--parallax-y", "0px");
+  });
+}
 
 async function initializeSupabaseAuth() {
   if (!greenonSupabase) {
@@ -1126,4 +1493,13 @@ async function initializeSupabaseAuth() {
   });
 }
 
-initializeSupabaseAuth();
+renderAirconStatus();
+renderWeather();
+renderMissionStatus();
+renderWallet();
+renderShop();
+renderUserAndReport();
+initializePointerInteractions();
+initializeSupabaseAuth().then(() => {
+  handleRoute();
+});
