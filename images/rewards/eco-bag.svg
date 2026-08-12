@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="에코백">
+  <rect width="640" height="480" fill="#f4faff"/>
+  <path d="M190 176h260l-24 228H214z" fill="#fffaf0" stroke="#0057b8" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M252 180c0-70 136-70 136 0" fill="none" stroke="#168cff" stroke-width="14" stroke-linecap="round"/>
+  <path d="M292 282c12-28 42-30 58-10-26 3-43 18-58 38-16-20-34-35-58-38 16-20 46-18 58 10z" fill="#1fa971"/>
+  <path d="M238 346h164" stroke="#d8c6a5" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="478" cy="118" r="56" fill="#eaf6ff"/>
+  <circle cx="158" cy="382" r="44" fill="#c8e9ff"/>
+</svg>

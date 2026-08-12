@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="아이스 아메리카노 컵">
+  <rect width="640" height="480" fill="#eaf6ff"/>
+  <circle cx="510" cy="80" r="72" fill="#c8e9ff"/>
+  <path d="M218 138h204l-24 270H242z" fill="#ffffff" stroke="#0057b8" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M238 184h164l-12 62H250z" fill="#6f4e37" opacity=".88"/>
+  <path d="M260 246h120l-13 138h-94z" fill="#9ed8ff"/>
+  <path d="M250 110h140" stroke="#0057b8" stroke-width="18" stroke-linecap="round"/>
+  <path d="M382 82l58-44" stroke="#168cff" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="285" cy="282" r="18" fill="#ffffff" opacity=".9"/>
+  <circle cx="342" cy="322" r="15" fill="#ffffff" opacity=".82"/>
+  <path d="M276 170h88" stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+</svg>

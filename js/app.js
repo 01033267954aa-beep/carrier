@@ -24,6 +24,7 @@ const DEFAULT_PRODUCTS = [
       "GREEN POINT로 교환 가능한 모바일 커피 쿠폰입니다. 에너지 절약 습관을 이어가며 일상 속 작은 보상을 받을 수 있습니다.",
     price: 4500,
     icon: "☕",
+    image: "images/rewards/americano.svg",
   },
   {
     id: "food-convenience-voucher",
@@ -35,6 +36,7 @@ const DEFAULT_PRODUCTS = [
       "간식, 음료, 생필품 구매에 사용할 수 있는 실용적인 리워드입니다. 미션을 꾸준히 완료한 사용자에게 적합합니다.",
     price: 5000,
     icon: "▣",
+    image: "images/rewards/gift-card.svg",
   },
   {
     id: "life-eco-tumbler",
@@ -46,6 +48,7 @@ const DEFAULT_PRODUCTS = [
       "반복 사용 가능한 텀블러로 GREEN ON 생활 습관을 이어갈 수 있습니다. 캠퍼스와 사무실 모두에 어울리는 깔끔한 디자인을 가정했습니다.",
     price: 8000,
     icon: "♻",
+    image: "images/rewards/tumbler.svg",
   },
   {
     id: "life-eco-bag",
@@ -57,6 +60,7 @@ const DEFAULT_PRODUCTS = [
       "일상 이동과 장보기에서 비닐 사용을 줄일 수 있는 리워드입니다. Carrier GreenON 브랜드 무드를 담은 샘플 상품입니다.",
     price: 6000,
     icon: "□",
+    image: "images/rewards/eco-bag.svg",
   },
   {
     id: "carrier-aircon-filter",
@@ -68,6 +72,7 @@ const DEFAULT_PRODUCTS = [
       "필터 관리는 냉방 효율과 실내 공기질을 함께 관리하는 핵심 습관입니다. 실제 Carrier API나 실제 부품 구매 연동은 하지 않는 샘플 상품입니다.",
     price: 12000,
     icon: "▤",
+    image: "images/rewards/carrier-filter.svg",
   },
   {
     id: "carrier-green-goods",
@@ -79,6 +84,7 @@ const DEFAULT_PRODUCTS = [
       "윈디 마스코트와 파란색 브랜드 무드를 담은 가상의 굿즈입니다. 친환경 냉방 미션 참여 경험을 확장하기 위한 리워드입니다.",
     price: 10000,
     icon: "G",
+    image: "images/rewards/green-goods.svg",
   },
 ];
 
@@ -168,8 +174,50 @@ function getRewardById(rewardId) {
   return shopState.rewards.find((reward) => String(reward.id) === String(rewardId));
 }
 
+function getRewardVisualPreset(reward) {
+  const fallback = PRODUCT_COPY_BY_CODE[reward.code] || {};
+  const normalizedName = reward.name || "";
+
+  if (fallback.image) {
+    return fallback;
+  }
+
+  if (normalizedName.includes("아메리카노") || normalizedName.includes("커피")) {
+    return PRODUCT_COPY_BY_CODE.FOOD_STARBUCKS_AMERICANO;
+  }
+
+  if (normalizedName.includes("상품권") || normalizedName.includes("쿠폰")) {
+    return PRODUCT_COPY_BY_CODE.FOOD_CONVENIENCE_VOUCHER;
+  }
+
+  if (normalizedName.includes("텀블러")) {
+    return PRODUCT_COPY_BY_CODE.LIFE_ECO_TUMBLER;
+  }
+
+  if (normalizedName.includes("에코백")) {
+    return PRODUCT_COPY_BY_CODE.LIFE_ECO_BAG;
+  }
+
+  if (normalizedName.includes("필터")) {
+    return PRODUCT_COPY_BY_CODE.CARRIER_AIRCON_FILTER;
+  }
+
+  if (normalizedName.includes("굿즈")) {
+    return PRODUCT_COPY_BY_CODE.CARRIER_GREEN_GOODS;
+  }
+
+  return {
+    icon: reward.icon || "G",
+    image: "images/rewards/greenon-reward.svg",
+  };
+}
+
 function getProductImageLabel(reward) {
-  return reward.icon || PRODUCT_COPY_BY_CODE[reward.code]?.icon || reward.name.slice(0, 1);
+  return reward.icon || getRewardVisualPreset(reward).icon || reward.name.slice(0, 1);
+}
+
+function getProductImageSrc(reward) {
+  return reward.image || getRewardVisualPreset(reward).image || "images/rewards/greenon-reward.svg";
 }
 
 function getProductDetailText(reward) {
@@ -211,6 +259,8 @@ function showScreen(targetScreenName, options = {}) {
     const isTargetScreen = screen.id === `screen-${targetScreenName}`;
     screen.classList.toggle("is-active", isTargetScreen);
   });
+
+  renderWindyForScreen(targetScreenName);
 
   if (!options.skipHash) {
     setHashForScreen(targetScreenName);
@@ -737,7 +787,7 @@ async function loadPublicSupabaseData() {
   // Supabase에 등록된 상품은 유지하되, 과제 요구 샘플 6개보다 적으면 기본 상품을 보강합니다.
   if (rewards?.length) {
     const mappedRewards = rewards.map((reward) => {
-      const fallback = PRODUCT_COPY_BY_CODE[reward.code] || {};
+      const fallback = getRewardVisualPreset(reward);
       return {
         ...fallback,
         id: reward.id,
@@ -747,6 +797,7 @@ async function loadPublicSupabaseData() {
         description: reward.description,
         price: reward.price,
         icon: fallback.icon || reward.name.slice(0, 1),
+        image: fallback.image || "images/rewards/greenon-reward.svg",
       };
     });
     const usedCodes = new Set(mappedRewards.map((reward) => reward.code));
@@ -948,8 +999,18 @@ function saveMissionRewardToSupabase() {
 function renderProductCard(reward) {
   const rewardCard = document.createElement("article");
   rewardCard.className = "product-card";
+  rewardCard.dataset.productCard = String(reward.id);
+  rewardCard.tabIndex = 0;
+  rewardCard.setAttribute("aria-label", `${reward.name} 상세 페이지 열기`);
   rewardCard.innerHTML = `
-    <div class="product-thumb" aria-hidden="true">${getProductImageLabel(reward)}</div>
+    <div class="product-thumb">
+      <img
+        src="${getProductImageSrc(reward)}"
+        alt="${reward.name} 이미지"
+        data-reward-image
+      />
+      <span aria-hidden="true">${getProductImageLabel(reward)}</span>
+    </div>
     <div class="product-meta">
       <span class="reward-category">${reward.category}</span>
       <span class="reward-price">${formatPoint(reward.price)}</span>
@@ -982,6 +1043,7 @@ function renderShop() {
 
   document.querySelector("#order-count").textContent = `${shopState.orders.length}건`;
   renderOrderHistory(orderHistory);
+  bindProductImageFallbacks();
   bindProductButtons();
 }
 
@@ -1011,10 +1073,39 @@ function renderOrderHistory(orderHistory) {
 }
 
 function bindProductButtons() {
+  document.querySelectorAll("[data-product-card]").forEach((card) => {
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("button")) {
+        return;
+      }
+      openProductDetail(card.dataset.productCard);
+    });
+
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") {
+        return;
+      }
+      event.preventDefault();
+      openProductDetail(card.dataset.productCard);
+    });
+  });
+
   document.querySelectorAll("[data-view-reward]").forEach((button) => {
     button.addEventListener("click", () => {
       openProductDetail(button.dataset.viewReward);
     });
+  });
+}
+
+function bindProductImageFallbacks() {
+  document.querySelectorAll("[data-reward-image]").forEach((image) => {
+    image.addEventListener(
+      "error",
+      () => {
+        image.src = "images/rewards/greenon-reward.svg";
+      },
+      { once: true },
+    );
   });
 }
 
@@ -1034,7 +1125,14 @@ function renderProductDetail() {
 
   const hasEnoughPoint = walletState.point >= reward.price;
   detailContent.innerHTML = `
-    <div class="product-detail-media" aria-hidden="true">${getProductImageLabel(reward)}</div>
+    <div class="product-detail-media">
+      <img
+        src="${getProductImageSrc(reward)}"
+        alt="${reward.name} 이미지"
+        data-reward-image
+      />
+      <span aria-hidden="true">${getProductImageLabel(reward)}</span>
+    </div>
     <div class="product-detail-info">
       <span class="reward-category">${reward.category}</span>
       <h2>${reward.name}</h2>
@@ -1064,6 +1162,7 @@ function renderProductDetail() {
       </button>
     </div>
   `;
+  bindProductImageFallbacks();
 
   const detailBuyButton = document.querySelector("#detail-buy-button");
   if (detailBuyButton) {
@@ -1338,6 +1437,38 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
   setAuthMessage("로그아웃되었습니다.");
 });
 
+function getWindyMascot() {
+  return document.querySelector("#windy-mascot");
+}
+
+function ensureWindyRendered() {
+  const slot = document.querySelector("#windy-slot");
+  const template = document.querySelector("#windy-template");
+
+  if (!slot || !template || getWindyMascot()) {
+    return;
+  }
+
+  slot.append(template.content.cloneNode(true));
+}
+
+function removeWindyMascot() {
+  const mascot = getWindyMascot();
+  if (mascot) {
+    mascot.remove();
+  }
+}
+
+function renderWindyForScreen(screenName) {
+  if (screenName === "home") {
+    ensureWindyRendered();
+    renderWindyMascot();
+    return;
+  }
+
+  removeWindyMascot();
+}
+
 function renderWindyMascot() {
   const mascot = document.querySelector("#windy-mascot");
   if (!mascot) {
@@ -1384,7 +1515,7 @@ function renderWindyMascot() {
 }
 
 function triggerWindyPointAnimation() {
-  const mascot = document.querySelector("#windy-mascot");
+  const mascot = getWindyMascot();
   if (!mascot) {
     return;
   }
@@ -1397,12 +1528,11 @@ function triggerWindyPointAnimation() {
 }
 
 function initializePointerInteractions() {
-  const mascot = document.querySelector("#windy-mascot");
   const hero = document.querySelector("#hero-panel");
   const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (!mascot || !hero || !canHover || reducedMotion) {
+  if (!hero || !canHover || reducedMotion) {
     return;
   }
 
@@ -1412,6 +1542,10 @@ function initializePointerInteractions() {
 
   function updateInteraction() {
     frameId = 0;
+    const mascot = getWindyMascot();
+    if (!mascot) {
+      return;
+    }
     const heroRect = hero.getBoundingClientRect();
     const mascotRect = mascot.getBoundingClientRect();
     const heroCenterX = heroRect.left + heroRect.width / 2;
@@ -1448,6 +1582,10 @@ function initializePointerInteractions() {
   });
 
   hero.addEventListener("mouseleave", () => {
+    const mascot = getWindyMascot();
+    if (!mascot) {
+      return;
+    }
     mascot.style.setProperty("--eye-x", "0px");
     mascot.style.setProperty("--eye-y", "0px");
     mascot.style.setProperty("--windy-rotate", "0deg");
@@ -1493,6 +1631,9 @@ async function initializeSupabaseAuth() {
   });
 }
 
+renderWindyForScreen(
+  !window.location.hash || window.location.hash === "#/home" ? "home" : "not-home",
+);
 renderAirconStatus();
 renderWeather();
 renderMissionStatus();

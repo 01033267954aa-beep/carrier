@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Carrier GreenON 굿즈">
+  <rect width="640" height="480" fill="#f4faff"/>
+  <rect x="168" y="148" width="304" height="220" rx="34" fill="#ffffff" stroke="#0057b8" stroke-width="12"/>
+  <path d="M210 148c22-72 198-72 220 0" fill="none" stroke="#168cff" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="320" cy="252" r="72" fill="#eaf6ff" stroke="#168cff" stroke-width="10"/>
+  <path d="M292 246c-18 0-25-18-13-29 10-9 27-2 22 11" fill="none" stroke="#0057b8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M348 246c18 0 25 18 13 29-10 9-27 2-22-11" fill="none" stroke="#0057b8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M295 282c16 14 34 14 50 0" fill="none" stroke="#172033" stroke-width="10" stroke-linecap="round"/>
+  <path d="M216 324h208" stroke="#1fa971" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="500" cy="116" r="58" fill="#c8e9ff"/>
+</svg>

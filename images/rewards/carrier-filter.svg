@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="에어컨 필터">
+  <rect width="640" height="480" fill="#eaf6ff"/>
+  <rect x="140" y="118" width="360" height="244" rx="28" fill="#ffffff" stroke="#0057b8" stroke-width="12"/>
+  <g stroke="#168cff" stroke-width="12" stroke-linecap="round">
+    <path d="M188 170h264M188 216h264M188 262h264M188 308h264"/>
+  </g>
+  <g stroke="#9ed8ff" stroke-width="10" stroke-linecap="round">
+    <path d="M222 148v190M278 148v190M334 148v190M390 148v190"/>
+  </g>
+  <path d="M474 96c44 24 66 66 58 124" fill="none" stroke="#1fa971" stroke-width="14" stroke-linecap="round"/>
+  <path d="M524 206l-20 24-24-20" fill="none" stroke="#1fa971" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="126" cy="378" r="50" fill="#c8e9ff"/>
+</svg>

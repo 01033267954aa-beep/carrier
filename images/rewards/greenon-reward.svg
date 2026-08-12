@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="GreenON 리워드 기본 이미지">
+  <rect width="640" height="480" fill="#eaf6ff"/>
+  <rect x="190" y="132" width="260" height="220" rx="36" fill="#ffffff" stroke="#0057b8" stroke-width="12"/>
+  <path d="M220 214h200M220 270h150" stroke="#168cff" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="430" cy="128" r="60" fill="#c8e9ff"/>
+  <path d="M300 324c18-36 56-38 80-12-36 4-60 24-80 52-22-28-46-48-80-52 24-26 62-24 80 12z" fill="#1fa971"/>
+</svg>

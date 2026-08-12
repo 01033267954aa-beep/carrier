@@ -22,10 +22,14 @@
       </header>
 
       <main class="main-content">
+        <section class="screen is-active" id="screen-home" aria-label="홈">
         <section class="hero-panel" id="hero-panel" aria-labelledby="home-title">
           <div class="hero-copy">
             <p class="section-label">Carrier ESG Cooling Mission</p>
-            <h1 id="home-title">시원함은 유지하고, 에너지는 더 가볍게</h1>
+            <h1 id="home-title">
+              <span>시원함은 유지하고,</span>
+              <span>에너지는 더 가볍게.</span>
+            </h1>
             <p>
               가상 Carrier 에어컨 상태와 날씨를 확인하고 친환경 냉방 미션으로
               GREEN POINT를 모아보세요.
@@ -41,12 +45,14 @@
           </div>
 
           <div class="hero-visual" id="hero-visual">
-            <div
-              class="windy-mascot"
-              id="windy-mascot"
-              aria-label="Carrier GreenON 바람 마스코트 윈디"
-              role="img"
-            >
+            <div id="windy-slot"></div>
+            <template id="windy-template">
+              <div
+                class="windy-mascot"
+                id="windy-mascot"
+                aria-label="Carrier GreenON 바람 마스코트 윈디"
+                role="img"
+              >
               <div class="windy-sparkles" aria-hidden="true">
                 <span></span>
                 <span></span>
@@ -125,7 +131,8 @@
                 />
               </svg>
               <div class="windy-badge">Windy</div>
-            </div>
+              </div>
+            </template>
           </div>
 
           <div class="hero-dashboard" aria-label="오늘의 핵심 상태">
@@ -147,8 +154,6 @@
             </article>
           </div>
         </section>
-
-        <section class="screen is-active" id="screen-home" aria-label="홈">
           <div class="dashboard-grid">
             <article class="dashboard-card weather-card">
               <div class="card-header">

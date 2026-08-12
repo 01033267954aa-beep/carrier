@@ -163,9 +163,14 @@ p {
 
 h1 {
   margin-bottom: 14px;
-  font-size: clamp(2.2rem, 6vw, 4.7rem);
-  line-height: 1.02;
+  font-size: clamp(2.25rem, 3.6vw, 2.75rem);
+  font-weight: 850;
+  line-height: 1.18;
   letter-spacing: 0;
+}
+
+h1 span {
+  display: block;
 }
 
 h2 {
@@ -209,6 +214,7 @@ p {
   border-radius: 50%;
   background: rgba(22, 140, 255, 0.16);
   content: "";
+  pointer-events: none;
   transform: translate3d(var(--parallax-x, 0), var(--parallax-y, 0), 0);
   transition: transform 140ms linear;
 }
@@ -241,6 +247,7 @@ p {
   display: grid;
   place-items: center;
   min-height: 260px;
+  pointer-events: none;
 }
 
 .hero-dashboard {
@@ -843,9 +850,12 @@ p {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: #fbfdff;
+  cursor: pointer;
 }
 
 .product-thumb {
+  position: relative;
+  overflow: hidden;
   aspect-ratio: 4 / 3;
   border-radius: 18px;
   background:
@@ -854,6 +864,25 @@ p {
   color: var(--primary-blue);
   font-size: 2.6rem;
   font-weight: 1000;
+}
+
+.product-thumb img,
+.product-detail-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 240ms ease;
+}
+
+.product-thumb span,
+.product-detail-media span {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover .product-thumb img {
+    transform: scale(1.03);
+  }
 }
 
 .product-card h3,
@@ -918,6 +947,7 @@ p {
 .product-detail-media {
   display: grid;
   place-items: center;
+  overflow: hidden;
   min-height: 340px;
   border-radius: 28px;
   background:
@@ -926,6 +956,11 @@ p {
   color: var(--primary-blue);
   font-size: 5.4rem;
   font-weight: 1000;
+}
+
+.product-detail-media img {
+  aspect-ratio: 4 / 3;
+  border-radius: inherit;
 }
 
 .product-detail-info {
@@ -1314,6 +1349,11 @@ a:focus-visible {
 
   .product-detail-media {
     min-height: 220px;
+  }
+
+  h1 {
+    font-size: clamp(1.625rem, 7.4vw, 2rem);
+    line-height: 1.22;
   }
 
   .bottom-nav {

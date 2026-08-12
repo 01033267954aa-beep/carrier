@@ -46,3 +46,17 @@ Supabase 연결은 `js/supabase-config.js`의 publishable key를 사용합니다
   - URL: https://developer.mozilla.org/docs/Web/CSS/transform
   - 참고한 기능: `translate`, `rotate`, `scale` 기반의 GPU 친화적인 micro interaction
   - 수정한 내용: 카드 hover, 버튼 hover, Windy 근접 반응을 Carrier GreenON UI 톤에 맞게 약한 움직임으로 조정
+
+## Reward Image Assets
+
+상품 이미지는 외부 URL을 사용하지 않고 프로젝트 내부에서 직접 제작한 SVG 일러스트를 사용합니다.
+
+- `images/rewards/americano.svg`: 아이스 아메리카노 컵
+- `images/rewards/gift-card.svg`: 모바일 상품권
+- `images/rewards/tumbler.svg`: 친환경 텀블러
+- `images/rewards/eco-bag.svg`: 캔버스 에코백
+- `images/rewards/carrier-filter.svg`: 에어컨 필터
+- `images/rewards/green-goods.svg`: Carrier GreenON 굿즈
+- `images/rewards/greenon-reward.svg`: 이미지 로딩 실패 시 사용하는 기본 리워드 이미지
+
+라이선스/출처: Codex가 이 프로젝트용으로 생성한 내부 SVG 에셋입니다. 외부 사진, 상표 이미지, 제한 라이선스 이미지를 포함하지 않습니다.

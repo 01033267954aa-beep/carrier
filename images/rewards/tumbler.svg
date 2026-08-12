@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="친환경 텀블러">
+  <rect width="640" height="480" fill="#eaf6ff"/>
+  <path d="M224 124h192l-28 284H252z" fill="#ffffff" stroke="#0057b8" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M246 192h148l-10 98H256z" fill="#168cff" opacity=".18"/>
+  <path d="M240 92h160" stroke="#0057b8" stroke-width="20" stroke-linecap="round"/>
+  <path d="M282 70h76" stroke="#168cff" stroke-width="16" stroke-linecap="round"/>
+  <path d="M296 260c16-32 50-34 70-12-31 3-52 20-70 44-19-24-40-41-70-44 20-22 54-20 70 12z" fill="#1fa971"/>
+  <circle cx="478" cy="116" r="62" fill="#c8e9ff"/>
+  <path d="M188 378c64 36 198 40 268 0" fill="none" stroke="#9ed8ff" stroke-width="16" stroke-linecap="round"/>
+</svg>
