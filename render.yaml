@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: carrier-greenon
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
