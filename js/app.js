@@ -13,6 +13,11 @@ const greenonSupabase =
     : null;
 
 const PRODUCT_ROUTE_PREFIX = "#/shop/";
+const AIRCON_STORAGE_KEY = "carrier-greenon-aircon-state";
+const AIRCON_TEMPERATURE_MIN = 18;
+const AIRCON_TEMPERATURE_MAX = 30;
+const AIRCON_MODES = ["냉방", "제습", "송풍", "자동"];
+const AIRCON_FANS = ["약풍", "중풍", "강풍", "자동풍"];
 const DEFAULT_PRODUCTS = [
   {
     id: "food-starbucks-americano",
@@ -147,7 +152,215 @@ const dbState = {
 };
 
 // 화면별 구성 요소를 함수 단위로 나눠 관리합니다. React 컴포넌트는 아니지만,
-// WindyMascot, StatusCard, ProductCard, ProductDetail 역할을 하는 렌더 함수를 분리했습니다.
+// WindyMascot, ACRemoteControl, StatusCard, ProductCard, ProductDetail 역할을 하는 렌더 함수를 분리했습니다.
+function clampTemperature(temperature) {
+  return Math.min(
+    AIRCON_TEMPERATURE_MAX,
+    Math.max(AIRCON_TEMPERATURE_MIN, Number(temperature)),
+  );
+}
+
+function normalizeFanLabel(fan) {
+  if (AIRCON_FANS.includes(fan)) {
+    return fan;
+  }
+
+  if (fan === "약") {
+    return "약풍";
+  }
+
+  if (fan === "중") {
+    return "중풍";
+  }
+
+  if (fan === "강") {
+    return "강풍";
+  }
+
+  if (fan === "자동" || fan === "자동 풍량") {
+    return "자동풍";
+  }
+
+  return "자동풍";
+}
+
+function getFanDisplayText(fan) {
+  const normalizedFan = normalizeFanLabel(fan);
+
+  if (normalizedFan === "자동풍") {
+    return "자동 풍량";
+  }
+
+  return normalizedFan;
+}
+
+function getRemoteEnergyTip() {
+  if (!airconState.power) {
+    return {
+      className: "is-off",
+      message: "전원이 꺼져 있어 에너지 사용이 멈춰 있어요.",
+    };
+  }
+
+  if (airconState.temperature <= 24) {
+    return {
+      className: "is-warning",
+      message: "온도를 조금 높이면 에너지를 더 절약할 수 있어요.",
+    };
+  }
+
+  if (airconState.temperature >= 26 && airconState.temperature <= 28) {
+    return {
+      className: "",
+      message: "에너지 절약에 적절한 온도예요.",
+    };
+  }
+
+  return {
+    className: "",
+    message: "쾌적함과 절약 균형을 유지하고 있어요.",
+  };
+}
+
+function persistAirconState() {
+  try {
+    localStorage.setItem(
+      AIRCON_STORAGE_KEY,
+      JSON.stringify({
+        power: airconState.power,
+        mode: airconState.mode,
+        temperature: airconState.temperature,
+        fan: airconState.fan,
+        runtimeMinutes: airconState.runtimeMinutes,
+        filter: airconState.filter,
+        sensor: airconState.sensor,
+        health: airconState.health,
+      }),
+    );
+  } catch (_error) {
+    // 브라우저 저장소를 사용할 수 없는 환경에서도 앱 조작은 계속 동작합니다.
+  }
+}
+
+function applySavedAirconState() {
+  try {
+    const savedValue = localStorage.getItem(AIRCON_STORAGE_KEY);
+
+    if (!savedValue) {
+      return;
+    }
+
+    const savedState = JSON.parse(savedValue);
+
+    airconState.power =
+      typeof savedState.power === "boolean" ? savedState.power : airconState.power;
+    airconState.mode = AIRCON_MODES.includes(savedState.mode)
+      ? savedState.mode
+      : airconState.mode;
+    airconState.temperature = clampTemperature(
+      savedState.temperature || airconState.temperature,
+    );
+    airconState.fan = normalizeFanLabel(savedState.fan || airconState.fan);
+    airconState.runtimeMinutes = Number.isFinite(Number(savedState.runtimeMinutes))
+      ? Number(savedState.runtimeMinutes)
+      : airconState.runtimeMinutes;
+    airconState.filter = savedState.filter || airconState.filter;
+    airconState.sensor = savedState.sensor || airconState.sensor;
+    airconState.health = savedState.health || airconState.health;
+  } catch (_error) {
+    // 저장된 값이 깨진 경우 기본 가상 에어컨 상태로 시작합니다.
+  }
+}
+
+function setTextContent(selector, value) {
+  const element = document.querySelector(selector);
+
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+function setRemoteOpen(isOpen) {
+  const remote = document.querySelector("#ac-remote-control");
+  const toggle = document.querySelector("#ac-remote-toggle");
+  const panel = document.querySelector("#ac-remote-panel");
+
+  if (!remote || !toggle || !panel) {
+    return;
+  }
+
+  remote.classList.toggle("is-open", isOpen);
+  toggle.setAttribute("aria-expanded", String(isOpen));
+  toggle.setAttribute(
+    "aria-label",
+    isOpen ? "에어컨 리모컨 닫기" : "에어컨 리모컨 열기",
+  );
+  panel.setAttribute("aria-hidden", String(!isOpen));
+}
+
+function renderACRemoteControl() {
+  const remote = document.querySelector("#ac-remote-control");
+  const powerButton = document.querySelector("#remote-power-button");
+  const tempDownButton = document.querySelector("#remote-temp-down");
+  const tempUpButton = document.querySelector("#remote-temp-up");
+  const energyTip = document.querySelector("#remote-energy-tip");
+
+  if (!remote) {
+    return;
+  }
+
+  const powerLabel = airconState.power ? "ON" : "OFF";
+  const temperatureText = `${airconState.temperature}°C`;
+  const fanText = getFanDisplayText(airconState.fan);
+  const energyTipState = getRemoteEnergyTip();
+
+  remote.classList.toggle("is-off", !airconState.power);
+  setTextContent("#remote-toggle-power", powerLabel);
+  setTextContent("#remote-toggle-temp", temperatureText);
+  setTextContent("#remote-power-label", powerLabel);
+  setTextContent("#remote-temperature-display", temperatureText);
+  setTextContent("#remote-temperature-inline", temperatureText);
+  setTextContent("#remote-mode-display", airconState.mode);
+  setTextContent("#remote-fan-display", fanText);
+
+  if (powerButton) {
+    powerButton.classList.toggle("is-off", !airconState.power);
+  }
+
+  if (tempDownButton) {
+    tempDownButton.disabled = airconState.temperature <= AIRCON_TEMPERATURE_MIN;
+  }
+
+  if (tempUpButton) {
+    tempUpButton.disabled = airconState.temperature >= AIRCON_TEMPERATURE_MAX;
+  }
+
+  document.querySelectorAll("[data-remote-mode]").forEach((button) => {
+    const isActive = button.dataset.remoteMode === airconState.mode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  document.querySelectorAll("[data-remote-fan]").forEach((button) => {
+    const isActive = button.dataset.remoteFan === normalizeFanLabel(airconState.fan);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  if (energyTip) {
+    energyTip.classList.toggle("is-warning", energyTipState.className === "is-warning");
+    energyTip.classList.toggle("is-off", energyTipState.className === "is-off");
+    energyTip.textContent = energyTipState.message;
+  }
+}
+
+function applyAirconControlChange() {
+  renderAirconStatus();
+  renderMissionStatus();
+  persistAirconState();
+  saveAirconStatusToSupabase();
+}
+
 function formatRuntime(minutes) {
   const hours = Math.floor(minutes / 60);
   const restMinutes = minutes % 60;
@@ -405,9 +618,12 @@ function renderAirconStatus() {
   const powerText = document.querySelector("#aircon-power");
   const messageText = document.querySelector("#aircon-message");
 
+  airconState.temperature = clampTemperature(airconState.temperature);
+  airconState.fan = normalizeFanLabel(airconState.fan);
+
   document.querySelector("#aircon-mode").textContent = airconState.mode;
   document.querySelector("#aircon-temp").textContent = `${airconState.temperature}°C`;
-  document.querySelector("#aircon-fan").textContent = airconState.fan;
+  document.querySelector("#aircon-fan").textContent = getFanDisplayText(airconState.fan);
   document.querySelector("#aircon-runtime").textContent = formatRuntime(
     airconState.runtimeMinutes,
   );
@@ -416,7 +632,9 @@ function renderAirconStatus() {
 
   document.querySelector("#home-aircon-temp").textContent = `${airconState.temperature}°C`;
   document.querySelector("#home-aircon-mode").textContent = airconState.mode;
-  document.querySelector("#home-aircon-fan").textContent = airconState.fan;
+  document.querySelector("#home-aircon-fan").textContent = getFanDisplayText(
+    airconState.fan,
+  );
   document.querySelector("#home-aircon-filter").textContent = airconState.filter;
   document.querySelector("#home-aircon-sensor").textContent = airconState.sensor;
 
@@ -426,11 +644,21 @@ function renderAirconStatus() {
   statusCard.classList.toggle("is-danger", danger);
   healthPill.classList.toggle("is-danger", danger);
 
+  if (!airconState.power && !danger) {
+    healthPill.textContent = "전원 OFF";
+    document.querySelector("#hero-aircon").textContent = "전원 OFF";
+    messageText.textContent = "에어컨 전원이 꺼져 있습니다. 리모컨에서 다시 켤 수 있어요.";
+    renderWindyMascot();
+    renderACRemoteControl();
+    return;
+  }
+
   if (airconState.health === "filter") {
     healthPill.textContent = "필터 점검";
     document.querySelector("#hero-aircon").textContent = "필터 점검";
     messageText.textContent = "필터 점검이 필요합니다. 미션 조건 위반 가능성이 있습니다.";
     renderWindyMascot();
+    renderACRemoteControl();
     return;
   }
 
@@ -439,6 +667,7 @@ function renderAirconStatus() {
     document.querySelector("#hero-aircon").textContent = "센서 오류";
     messageText.textContent = "센서 값이 비정상입니다. 상태 확인이 필요합니다.";
     renderWindyMascot();
+    renderACRemoteControl();
     return;
   }
 
@@ -446,6 +675,7 @@ function renderAirconStatus() {
   document.querySelector("#hero-aircon").textContent = "정상";
   messageText.textContent = "쾌적한 친환경 냉방 상태입니다.";
   renderWindyMascot();
+  renderACRemoteControl();
 }
 
 document.querySelectorAll("[data-weather]").forEach((button) => {
@@ -514,16 +744,67 @@ document.querySelectorAll("[data-aircon-action]").forEach((button) => {
     }
 
     if (action === "tempDown") {
-      airconState.temperature -= 1;
+      airconState.temperature = clampTemperature(airconState.temperature - 1);
     }
 
     if (action === "tempUp") {
-      airconState.temperature += 1;
+      airconState.temperature = clampTemperature(airconState.temperature + 1);
     }
 
     renderAirconStatus();
     renderMissionStatus();
+    persistAirconState();
     saveAirconStatusToSupabase();
+  });
+});
+
+document.querySelector("#ac-remote-toggle")?.addEventListener("click", () => {
+  const remote = document.querySelector("#ac-remote-control");
+  setRemoteOpen(!remote?.classList.contains("is-open"));
+});
+
+document.addEventListener("click", (event) => {
+  const remote = document.querySelector("#ac-remote-control");
+
+  if (!remote?.classList.contains("is-open") || remote.contains(event.target)) {
+    return;
+  }
+
+  setRemoteOpen(false);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    setRemoteOpen(false);
+  }
+});
+
+document.querySelector("#remote-power-button")?.addEventListener("click", () => {
+  airconState.power = !airconState.power;
+  applyAirconControlChange();
+});
+
+document.querySelector("#remote-temp-down")?.addEventListener("click", () => {
+  airconState.temperature = clampTemperature(airconState.temperature - 1);
+  applyAirconControlChange();
+});
+
+document.querySelector("#remote-temp-up")?.addEventListener("click", () => {
+  airconState.temperature = clampTemperature(airconState.temperature + 1);
+  applyAirconControlChange();
+});
+
+document.querySelectorAll("[data-remote-mode]").forEach((button) => {
+  button.addEventListener("click", () => {
+    airconState.mode = button.dataset.remoteMode;
+    applyAirconControlChange();
+  });
+});
+
+document.querySelectorAll("[data-remote-fan]").forEach((button) => {
+  button.addEventListener("click", () => {
+    airconState.fan = normalizeFanLabel(button.dataset.remoteFan);
+    applyAirconControlChange();
   });
 });
 
@@ -859,13 +1140,14 @@ async function loadUserSupabaseData() {
 
   if (airconRow) {
     airconState.power = airconRow.power;
-    airconState.mode = airconRow.mode;
-    airconState.temperature = airconRow.temperature;
-    airconState.fan = airconRow.fan;
+    airconState.mode = AIRCON_MODES.includes(airconRow.mode) ? airconRow.mode : "냉방";
+    airconState.temperature = clampTemperature(airconRow.temperature);
+    airconState.fan = normalizeFanLabel(airconRow.fan);
     airconState.runtimeMinutes = airconRow.runtime_minutes;
     airconState.filter = airconRow.filter_status;
     airconState.sensor = airconRow.sensor_status;
     airconState.health = airconRow.health;
+    persistAirconState();
   }
 
   walletState.transactions = (transactions || []).map((transaction) => ({
@@ -1631,6 +1913,7 @@ async function initializeSupabaseAuth() {
   });
 }
 
+applySavedAirconState();
 renderWindyForScreen(
   !window.location.hash || window.location.hash === "#/home" ? "home" : "not-home",
 );

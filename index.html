@@ -21,6 +21,98 @@
         </button>
       </header>
 
+      <aside class="ac-remote" id="ac-remote-control" aria-label="에어컨 리모컨">
+        <button
+          class="ac-remote-toggle"
+          type="button"
+          id="ac-remote-toggle"
+          aria-label="에어컨 리모컨 열기"
+          aria-expanded="false"
+          aria-controls="ac-remote-panel"
+        >
+          <span class="ac-remote-icon" aria-hidden="true">▤</span>
+          <span class="ac-remote-toggle-text">
+            <strong id="remote-toggle-power">ON</strong>
+            <small id="remote-toggle-temp">26°C</small>
+          </span>
+          <span class="ac-remote-dot" id="remote-toggle-dot" aria-hidden="true"></span>
+        </button>
+
+        <section
+          class="ac-remote-panel"
+          id="ac-remote-panel"
+          aria-label="Carrier 스마트 에어컨 리모컨"
+          aria-hidden="true"
+        >
+          <div class="ac-remote-screen">
+            <div>
+              <span id="remote-power-label">ON</span>
+              <strong id="remote-temperature-display">26°C</strong>
+            </div>
+            <p>
+              <span id="remote-mode-display">냉방</span>
+              ·
+              <span id="remote-fan-display">자동 풍량</span>
+            </p>
+          </div>
+
+          <button
+            class="ac-power-button"
+            type="button"
+            id="remote-power-button"
+            aria-label="에어컨 전원 켜기 또는 끄기"
+          >
+            <span aria-hidden="true">⏻</span>
+            <strong>전원</strong>
+          </button>
+
+          <div class="ac-remote-control-group">
+            <span>설정 온도</span>
+            <div class="temperature-control">
+              <button
+                type="button"
+                id="remote-temp-down"
+                aria-label="설정 온도 1도 내리기"
+              >
+                −
+              </button>
+              <strong id="remote-temperature-inline">26°C</strong>
+              <button
+                type="button"
+                id="remote-temp-up"
+                aria-label="설정 온도 1도 올리기"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="ac-remote-control-group">
+            <span>운전 모드</span>
+            <div class="remote-segmented" aria-label="운전 모드 선택">
+              <button type="button" data-remote-mode="냉방">냉방</button>
+              <button type="button" data-remote-mode="제습">제습</button>
+              <button type="button" data-remote-mode="송풍">송풍</button>
+              <button type="button" data-remote-mode="자동">자동</button>
+            </div>
+          </div>
+
+          <div class="ac-remote-control-group">
+            <span>풍량</span>
+            <div class="remote-segmented fan-segmented" aria-label="풍량 선택">
+              <button type="button" data-remote-fan="약풍">약</button>
+              <button type="button" data-remote-fan="중풍">중</button>
+              <button type="button" data-remote-fan="강풍">강</button>
+              <button type="button" data-remote-fan="자동풍">자동</button>
+            </div>
+          </div>
+
+          <p class="ac-remote-tip" id="remote-energy-tip">
+            에너지 절약에 적절한 온도예요.
+          </p>
+        </section>
+      </aside>
+
       <main class="main-content">
         <section class="screen is-active" id="screen-home" aria-label="홈">
         <section class="hero-panel" id="hero-panel" aria-labelledby="home-title">
